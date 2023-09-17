@@ -14,21 +14,25 @@ import com.example.manage.util.RandomIdGenerator
 
 class IdolManageFun {
     fun getIdol() {
-        for (idol in idolDB) {
-            println("소속사: ${idol.value.company}")
-            println("그룹명: ${idol.value.name}")
-            println("멤버수: ${idol.value.count}")
-            print("아이돌 리스트: ")
-            idol.value.members?.forEach {
-                print("${it} ")
+        if (idolDB.size == 0) {
+            println("등록된 아이돌이 없습니다.")
+        } else {
+            for (idol in idolDB) {
+                println("소속사: ${idol.value.company}")
+                println("그룹명: ${idol.value.name}")
+                println("멤버수: ${idol.value.count}")
+                print("아이돌 리스트: ")
+                idol.value.members?.forEach {
+                    print("${it} ")
+                }
+                println()
+                print("행사 리스트: ")
+                idol.value.events?.forEach {
+                    print("${it} ")
+                }
+                println()
+                println("-----------------------------------")
             }
-            println()
-            print("행사 리스트: ")
-            idol.value.events?.forEach {
-                print("${it} ")
-            }
-            println()
-            println("-----------------------------------")
         }
     }
 
@@ -40,10 +44,23 @@ class IdolManageFun {
             //TODO 소속사도 EXIST 검사해야 하나
             val members = str.subList(3, str.size)
             val data = IdolGroup(str[0], str[1], str[2].toInt(), members)
-            addAndUpdateIdolToCompanyDB(str[0],str[1])
-            idolDB.put(RandomIdGenerator.randomId, data)
-            println("AddIdol 결과: $idolDB")
-            updateIdolFileDB()
+            val dupIdol = idolDB.filter {
+                it.value.name == data.name
+            }
+            val isCompanyExist = companyDB.filter {
+                it.value.name == str[0]
+            }
+            if (dupIdol.isEmpty() && isCompanyExist.isNotEmpty()) {
+                addAndUpdateIdolToCompanyDB(str[0], str[1])
+                idolDB.put(RandomIdGenerator.randomId, data)
+                println("등록이 완료되었습니다.")
+//            println("AddIdol 결과: $idolDB")
+                updateIdolFileDB()
+            } else if (dupIdol.isNotEmpty()) {
+                println("이미 존재하는 아이돌입니다.")
+            } else if (isCompanyExist.isEmpty()){
+                println("등록 가능한 소속사가 없습니다.")
+            }
         }
     }
 
@@ -86,12 +103,12 @@ class IdolManageFun {
         if (!idolName.isNullOrEmpty()) {
             var flag = false
             var idolKey = 0
-            var events = listOf<String>()
+            var events: List<String>? = emptyList()
             for (idol in idolDB) {
                 if (idolName.equals(idol.value.name)) {
                     flag = true
                     idolKey = idol.key
-                    events = idol.value.events as List<String>
+                    events = idol.value.events
                     break
                 }
             }
@@ -104,11 +121,18 @@ class IdolManageFun {
             val newData = ConsoleReader.consoleScanner()
             if (!newData.isNullOrEmpty()) {
                 val str = newData.split(',')
-                val members = str.subList(3, str.size)
-                val data = IdolGroup(str[0], str[1], str[2].toInt(), members, events)
-                addAndUpdateIdolToCompanyDB(str[0],str[1])
-                idolDB.put(idolKey, data)
-                println("AddIdol 결과: $idolDB")
+                val isCompanyExist = companyDB.filter {
+                    it.value.name == str[0]
+                }
+                if (isCompanyExist.isEmpty()){
+                    println("등록 가능한 소속사가 없습니다.")
+                }else{
+                    val members = str.subList(3, str.size)
+                    val data = IdolGroup(str[0], str[1], str[2].toInt(), members, events)
+                    addAndUpdateIdolToCompanyDB(str[0], str[1])
+                    idolDB.put(idolKey, data)
+//                println("AddIdol 결과: $idolDB")
+                }
             }
         }
         updateIdolFileDB()
@@ -128,7 +152,7 @@ class IdolManageFun {
                     break
                 }
             }
-            if(flag){
+            if (flag) {
                 println("삭제 완료!")
             } else {
                 println("존재하지 않는 그룹명입니다.")
@@ -136,30 +160,31 @@ class IdolManageFun {
         }
         updateIdolFileDB()
     }
-    fun deleteIdolInEventDB(idolName: String){
+
+    fun deleteIdolInEventDB(idolName: String) {
         for (event in eventDB) {
             for (idol in event.value.castedGroup) {
                 if (idolName == idol) {
                     var castedGroup = event.value.castedGroup.toMutableList()
                     castedGroup.remove(idol)
                     val data =
-                        Event(event.value.name, event.value.date,castedGroup)
+                        Event(event.value.name, event.value.date, castedGroup)
                     eventDB.replace(event.key, data)
                 }
                 //break 해야하나
             }
         }
-       EventDB.updateEventFileDB()
+        EventDB.updateEventFileDB()
     }
 
-    fun addAndUpdateIdolToCompanyDB(companyName:String, idolName: String){ //테스트
+    fun addAndUpdateIdolToCompanyDB(companyName: String, idolName: String) { //테스트
         for (company in companyDB) {
             if (companyName == company.value.name) {
                 var groupList = mutableListOf<String>()
-                if(company.value.group != null){
+                if (company.value.group != null) {
                     groupList = company.value.group!!.toMutableList()
                     groupList.add(idolName)
-                }else{
+                } else {
                     groupList.add(idolName)
                 }
                 val data = Company(company.value.name, company.value.address, company.value.contactNumber, groupList)
@@ -170,13 +195,14 @@ class IdolManageFun {
     }
 
 
-    fun deleteIdolInCompanyDB(idolName: String){
+    fun deleteIdolInCompanyDB(idolName: String) {
         for (company in companyDB) {
             for (group in company.value.group as List<String>) {
                 if (idolName == group) {
                     var groupList = company.value.group!!.toMutableList()
                     groupList.remove(idolName)
-                    val data = Company(company.value.name, company.value.address, company.value.contactNumber, groupList)
+                    val data =
+                        Company(company.value.name, company.value.address, company.value.contactNumber, groupList)
                     companyDB.replace(company.key, data)
                 }
                 //break 해야하나

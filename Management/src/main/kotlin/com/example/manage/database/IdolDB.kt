@@ -13,12 +13,12 @@ class IdolDB {
                 br.lines().forEach {
                     val str = it.split(",")
                     var members = listOf<String>()
-                    if(str.size>3){
-                        members = str.subList(4, str[3].toInt()+4)
+                    if (str.size > 3) {
+                        members = str.subList(4, str[3].toInt() + 4)
                     }
                     var events = listOf<String>()
-                    if(str.size>str[3].toInt()+4){
-                        events = str.subList(str[3].toInt()+4,str.size)
+                    if (str.size > str[3].toInt() + 4) {
+                        events = str.subList(str[3].toInt() + 4, str.size)
                     }
                     val data = IdolGroup(str[1], str[2], str[3].toInt(), members, events)
                     idolDB.put(str[0].toInt(), data)
@@ -40,8 +40,8 @@ class IdolDB {
                         memberStr += idol.value.members!![index]
                     }
                     var eventStr = ""
-                    if(idol.value.events!=null){
-                        eventStr +=","
+                    if (idol.value.events != null) {
+                        eventStr += ","
                         for (index in idol.value.events!!.indices) {
                             if (index != 0) {
                                 eventStr += ","
@@ -55,7 +55,5 @@ class IdolDB {
                 close()
             }
         }
-
-
     }
 }
