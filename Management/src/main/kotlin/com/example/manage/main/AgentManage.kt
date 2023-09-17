@@ -1,4 +1,5 @@
 package com.example.manage.main
 
-class AgentManage {
+fun main(){
+
 }
