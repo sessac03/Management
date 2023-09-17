@@ -4,7 +4,7 @@ import java.util.*
 
 class RandomIdGenerator {
 
-    companion object{
-        var randomId : Int = Random().nextInt(1000)
+    companion object {
+        var randomId: Int = Random().nextInt(1000)
     }
 }

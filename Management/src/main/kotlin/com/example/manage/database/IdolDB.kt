@@ -1,6 +1,7 @@
 package com.example.manage.database
 
 import com.example.manage.data.IdolGroup
+import kotlinx.coroutines.runBlocking
 import java.io.*
 
 class IdolDB {
@@ -8,7 +9,7 @@ class IdolDB {
         val idolDB = HashMap<Int, IdolGroup>()
 
         val file = File("./managementfile/IdolFile.dat")
-        fun getIdolFileDB() {
+        fun getIdolFileDB() = runBlocking {
             BufferedReader(FileReader(file)).use { br ->
                 br.lines().forEach {
                     val str = it.split(",")
@@ -27,7 +28,7 @@ class IdolDB {
             //TODO NULL 처리
         }
 
-        fun updateIdolFileDB() {
+        fun updateIdolFileDB() = runBlocking {
 //            println("IodlDB updateIodlFileDB $idolDB")
             var fileOut = BufferedWriter(FileWriter("./managementfile/IdolFile.dat"))
             with(fileOut) {

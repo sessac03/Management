@@ -8,14 +8,20 @@ import com.example.manage.database.IdolDB
 import com.example.manage.database.IdolDB.Companion.idolDB
 import com.example.manage.util.ConsoleReader
 import com.example.manage.util.RandomIdGenerator
+import kotlin.math.abs
+import kotlin.random.Random
 
 class EventManageFun {
     fun getEvents() {
-        eventDB.forEach { event ->
-            println("행사명: ${event.value.name}")
-            println("행사 날짜: ${event.value.date}")
-            println("출연 아이돌: ${event.value.castedGroup}")
-            println("-----------------------------------")
+        if (eventDB.size == 0) {
+            println("등록된 행사가 없습니다.")
+        } else {
+            eventDB.forEach { event ->
+                println("행사명: ${event.value.name}")
+                println("행사 날짜: ${event.value.date}")
+                println("출연 아이돌: ${event.value.castedGroup}")
+                println("-----------------------------------")
+            }
         }
     }
 
@@ -26,10 +32,18 @@ class EventManageFun {
             val eventInfo = line.split(',')
             val groupList = eventInfo.subList(2, eventInfo.size)
             val data = Event(eventInfo[0], eventInfo[1], groupList)
-            addAndUpdateEventToIdolDB(groupList,eventInfo[0])
-            eventDB.put(RandomIdGenerator.randomId, data)
+            val dupEvent = eventDB.filter {
+                it.value.name == data.name
+            }
+            if (dupEvent.isEmpty()) {
+                addAndUpdateEventToIdolDB(groupList, eventInfo[0])
+                eventDB.put(RandomIdGenerator.randomId, data)
 //            println("AddEvent 결과: ${eventDB}")
-            updateEventFileDB()
+                updateEventFileDB()
+                println("등록이 완료되었습니다.")
+            } else {
+                println("이미 존재하는 행사명입니다.")
+            }
         }
     }
 
@@ -38,12 +52,17 @@ class EventManageFun {
         eventName = ConsoleReader.consoleScanner()
         if (!eventName.isNullOrEmpty()) {
             println("[$eventName] 검색 결과")
-            eventDB.filter {
+            val result = eventDB.filter {
                 it.value.name == eventName
-            }.forEach {
-                println("행사명: ${it.value.name}")
-                println("행사 날짜: ${it.value.date}")
-                println("출연 아이돌: ${it.value.castedGroup}")
+            }
+            if (result.isEmpty()) {
+                println("존재하지 않는 행사입니다.")
+            } else {
+                result.forEach {
+                    println("행사명: ${it.value.name}")
+                    println("행사 날짜: ${it.value.date}")
+                    println("출연 아이돌: ${it.value.castedGroup}")
+                }
             }
         }
     }
@@ -66,8 +85,9 @@ class EventManageFun {
                     val eventInfo = newData.split(",")
                     val groupList = eventInfo.subList(2, eventInfo.size)
                     val data = Event(eventInfo[0], eventInfo[1], groupList)
-                    addAndUpdateEventToIdolDB(groupList,eventInfo[0])
+                    addAndUpdateEventToIdolDB(groupList, eventInfo[0])
                     eventDB.replace(eventKey, data)
+                    println("수정이 완료되었습니다.")
                 }
             } else {
                 println("존재하지 않는 행사입니다.")
@@ -90,6 +110,7 @@ class EventManageFun {
             }
             if (eventKey != -1) {
                 eventDB.remove(eventKey)
+                println("삭제 완료!")
             } else {
                 println("존재하지 않는 행사입니다.")
             }
@@ -97,26 +118,27 @@ class EventManageFun {
         updateEventFileDB()
     }
 
-    fun addAndUpdateEventToIdolDB(groupList : List<String>, eventName: String){
-        for(group in groupList){
-            for(idol in idolDB){
-                if(group == idol.value.name){
+    fun addAndUpdateEventToIdolDB(groupList: List<String>, eventName: String) {
+        for (group in groupList) {
+            for (idol in idolDB) {
+                if (group == idol.value.name) {
                     var eventList = mutableListOf<String>()
-                    if(idol.value.events != null){
+                    if (idol.value.events != null) {
                         eventList = idol.value.events!!.toMutableList()
                         eventList.add(eventName)
-                    }else{
+                    } else {
                         eventList.add(eventName)
                     }
-                    val data = IdolGroup(idol.value.company, idol.value.name, idol.value.count,idol.value.members,eventList)
-                    idolDB.replace(idol.key,data)
+                    val data =
+                        IdolGroup(idol.value.company, idol.value.name, idol.value.count, idol.value.members, eventList)
+                    idolDB.replace(idol.key, data)
                 }
             }
         }
         IdolDB.updateIdolFileDB()
     }
 
-    fun deleteEventToIdolDB(eventName: String){
+    fun deleteEventToIdolDB(eventName: String) {
         for (idol in idolDB) {
             for (event in idol.value.events as List<String>) {
                 if (eventName == event) {
