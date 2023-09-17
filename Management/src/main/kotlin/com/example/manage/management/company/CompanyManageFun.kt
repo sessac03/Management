@@ -8,16 +8,20 @@ import com.example.manage.util.RandomIdGenerator
 
 class CompanyManageFun {
     fun getCompanies() {
-        for (company in companyDB) {
-            println("이름: ${company.value.name}")
-            println("주소: ${company.value.address}")
-            println("연락처: ${company.value.contactNumber}")
-            print("아이돌 리스트: ")
-            company.value.group?.forEach {
-                print("${it} ")
+        if (companyDB.size == 0) {
+            println("등록된 회사가 없습니다.")
+        } else {
+            for (company in companyDB) {
+                println("이름: ${company.value.name}")
+                println("주소: ${company.value.address}")
+                println("연락처: ${company.value.contactNumber}")
+                print("아이돌 리스트: ")
+                company.value.group?.forEach {
+                    print("${it} ")
+                }
+                println()
+                println("-----------------------------------")
             }
-            println()
-            println("-----------------------------------")
         }
     }
 
@@ -26,11 +30,23 @@ class CompanyManageFun {
         line = ConsoleReader.consoleScanner()
         if (!line.isNullOrEmpty()) {
             val str = line.split(',')
-            val id = RandomIdGenerator.randomId
-            val data = Company(str[0], str[1], str[2])
-            companyDB.put(id, data)
-            println("AddCompany 결과: $companyDB")
-            updateCompanyFileDB()
+            var flag = false
+            for (item in companyDB) {
+                if (item.value.name == str[0]) {
+                    flag = true
+                    break
+                }
+            }
+            if (flag) {
+                println("이미 존재하는 회사명입니다.")
+            } else {
+                val id = RandomIdGenerator.randomId
+                val data = Company(str[0], str[1], str[2], emptyList())
+                companyDB.put(id, data)
+                println("회사 등록이 완료되었습니다.")
+//                println("AddCompany 결과: $companyDB")
+                updateCompanyFileDB()
+            }
         }
     }
 
@@ -43,10 +59,10 @@ class CompanyManageFun {
                 if (companyName.equals(company.value.name)) {
                     flag = true
                     println("[$companyName] 검색결과")
-                    println("이름: ${company.value.name}")
-                    println("주소: ${company.value.address}")
-                    println("연락처: ${company.value.contactNumber}")
-                    print("아이돌 리스트: ")
+                    println("이름\t\t\t: ${company.value.name}")
+                    println("주소\t\t\t: ${company.value.address}")
+                    println("연락처\t\t: ${company.value.contactNumber}")
+                    print("아이돌 리스트\t: ")
                     company.value.group?.forEach {
                         print("${it} ")
                     }
@@ -66,12 +82,12 @@ class CompanyManageFun {
         if (!companyName.isNullOrEmpty()) {
             var flag = false
             var companyKey = 0
-            var groups = listOf<String>()
+            var groups: List<String>? = emptyList()
             for (company in companyDB) {
                 if (companyName.equals(company.value.name)) {
                     flag = true
                     companyKey = company.key
-                    groups = company.value.group as List<String>
+                    groups = company.value.group
                     break
                 }
             }
@@ -83,9 +99,14 @@ class CompanyManageFun {
             val newData = ConsoleReader.consoleScanner()
             if (!newData.isNullOrEmpty()) {
                 val str = newData.split(",")
-                val data = Company(str[0], str[1], str[2],groups)
-                companyDB.put(companyKey, data)
-                println("AddCompany 결과: $companyDB")
+                if (str[0] == companyName) {
+                    val data = Company(str[0], str[1], str[2], groups)
+                    companyDB.replace(companyKey, data)
+                    println("수정이 완료되었습니다.")
+//                println("AddCompany 결과: $companyDB")
+                } else {
+                    println("회사 이름이 동일하지 않습니다.")
+                }
             }
         }
         updateCompanyFileDB()
@@ -103,7 +124,7 @@ class CompanyManageFun {
                     break
                 }
             }
-            if(flag){
+            if (flag) {
                 println("삭제 완료!")
             } else {
                 println("존재하지 않는 회사입니다.")
@@ -111,5 +132,5 @@ class CompanyManageFun {
         }
         updateCompanyFileDB()
     }
- //TODO 소속사가 삭제되면 해당 아이돌들도 삭제되어야 하는가?
+    //TODO 소속사가 삭제되면 해당 아이돌들도 삭제되어야 하는가?
 }
