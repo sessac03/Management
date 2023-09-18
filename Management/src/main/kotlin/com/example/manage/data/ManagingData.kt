@@ -8,7 +8,7 @@ data class Company(
 )
 
 data class IdolGroup(
-    val company: String?,
+    var company: String?,
     val name: String,
     val count: Int,
     val members: List<String>? = null,

@@ -3,6 +3,8 @@ package com.example.manage.management.company
 import com.example.manage.data.Company
 import com.example.manage.database.CompanyDB.Companion.companyDB
 import com.example.manage.database.CompanyDB.Companion.updateCompanyFileDB
+import com.example.manage.database.IdolDB.Companion.idolDB
+import com.example.manage.database.IdolDB.Companion.updateIdolFileDB
 import com.example.manage.util.ConsoleReader
 import com.example.manage.util.RandomIdGenerator
 
@@ -121,6 +123,11 @@ class CompanyManageFun {
                 if (companyName.equals(company.value.name)) {
                     flag = true
                     companyDB.remove(company.key)
+                    for(idol in idolDB){
+                        if(company.value.name == idol.value.company){
+                            idol.value.company = "소속사 없음"
+                        }
+                    }
                     break
                 }
             }
@@ -131,6 +138,6 @@ class CompanyManageFun {
             }
         }
         updateCompanyFileDB()
+        updateIdolFileDB()
     }
-    //TODO 소속사가 삭제되면 해당 아이돌들도 삭제되어야 하는가?
 }
