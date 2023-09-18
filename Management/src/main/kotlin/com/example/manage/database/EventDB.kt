@@ -4,11 +4,13 @@ import com.example.manage.data.Event
 import kotlinx.coroutines.runBlocking
 import java.io.*
 
+private const val EVENT_DB = "./managementfile/EventFile.dat"
+
 class EventDB {
     companion object {
         val eventDB = HashMap<Int, Event>()
 
-        val file = File("./managementfile/EventFile.dat")
+        val file = File(EVENT_DB)
         fun getEventFileDB() = runBlocking {
             BufferedReader(FileReader(file)).use { br ->
                 br.lines().forEach {
@@ -21,7 +23,7 @@ class EventDB {
         }
 
         fun updateEventFileDB() = runBlocking {
-            var fileOut = BufferedWriter(FileWriter("./managementfile/EventFile.dat"))
+            var fileOut = BufferedWriter(FileWriter(EVENT_DB))
 
             with(fileOut) {
                 eventDB.forEach {

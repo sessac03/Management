@@ -4,11 +4,13 @@ import com.example.manage.data.IdolGroup
 import kotlinx.coroutines.runBlocking
 import java.io.*
 
+private const val IDOL_DB = "./managementfile/IdolFile.dat"
+
 class IdolDB {
     companion object {
         val idolDB = HashMap<Int, IdolGroup>()
 
-        val file = File("./managementfile/IdolFile.dat")
+        val file = File(IDOL_DB)
         fun getIdolFileDB() = runBlocking {
             BufferedReader(FileReader(file)).use { br ->
                 br.lines().forEach {
@@ -29,7 +31,7 @@ class IdolDB {
 
         fun updateIdolFileDB() = runBlocking {
 //            println("IodlDB updateIodlFileDB $idolDB")
-            var fileOut = BufferedWriter(FileWriter("./managementfile/IdolFile.dat"))
+            var fileOut = BufferedWriter(FileWriter(IDOL_DB))
             with(fileOut) {
                 for (idol in idolDB) {
                     var memberStr = ""

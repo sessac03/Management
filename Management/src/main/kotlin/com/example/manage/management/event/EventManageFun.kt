@@ -35,14 +35,30 @@ class EventManageFun {
             val dupEvent = eventDB.filter {
                 it.value.name == data.name
             }
-            if (dupEvent.isEmpty()) {
-                addAndUpdateEventToIdolDB(groupList, eventInfo[0])
-                eventDB.put(RandomIdGenerator.randomId, data)
+            var flag = true
+            for (castiIdol in groupList) {
+                for (idol in idolDB) {
+                    if (castiIdol != idol.value.name) {
+                        flag = false
+                        break
+                    }
+                }
+                if (!flag) {
+                    break
+                }
+            }
+            if (flag) {
+                if (dupEvent.isEmpty()) {
+                    addAndUpdateEventToIdolDB(groupList, eventInfo[0])
+                    eventDB.put(RandomIdGenerator.randomId, data)
 //            println("AddEvent 결과: ${eventDB}")
-                updateEventFileDB()
-                println("등록이 완료되었습니다.")
+                    updateEventFileDB()
+                    println("등록이 완료되었습니다.")
+                } else {
+                    println("이미 존재하는 행사명입니다.")
+                }
             } else {
-                println("이미 존재하는 행사명입니다.")
+                println("등록되어있지 않은 아이돌입니다.")
             }
         }
     }

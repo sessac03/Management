@@ -6,11 +6,12 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.*
 
+private const val COMPANY_DB = "./managementfile/CompanyFile.dat"
 class CompanyDB {
     companion object {
         val companyDB = HashMap<Int, Company>()
 
-        val file = File("./managementfile/CompanyFile.dat")
+        val file = File(COMPANY_DB)
         fun getCompanyFileDB() = runBlocking {
             withContext(Dispatchers.IO) {
                 BufferedReader(FileReader(file)).use { br ->
@@ -29,7 +30,7 @@ class CompanyDB {
 
         fun updateCompanyFileDB() = runBlocking {
             withContext(Dispatchers.IO) {
-                var fileOut = BufferedWriter(FileWriter("./managementfile/CompanyFile.dat"))
+                var fileOut = BufferedWriter(FileWriter(COMPANY_DB))
                 with(fileOut) {
                     for (company in companyDB) {
                         var groupStr = ""
