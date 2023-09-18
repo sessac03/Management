@@ -25,7 +25,6 @@ class IdolDB {
                     idolDB.put(str[0].toInt(), data)
                 }
             }
-            //TODO NULL 처리
         }
 
         fun updateIdolFileDB() = runBlocking {

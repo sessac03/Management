@@ -148,7 +148,6 @@ class EventManageFun {
                         IdolGroup(idol.value.company, idol.value.name, idol.value.count, idol.value.members, eventList)
                     idolDB.replace(idol.key, data)
                 }
-                //break 해야하나
             }
         }
         IdolDB.updateIdolFileDB()

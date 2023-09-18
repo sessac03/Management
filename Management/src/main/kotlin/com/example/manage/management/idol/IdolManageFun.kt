@@ -41,7 +41,6 @@ class IdolManageFun {
         line = ConsoleReader.consoleScanner()
         if (!line.isNullOrEmpty()) {
             val str = line.split(',')
-            //TODO 소속사도 EXIST 검사해야 하나
             val members = str.subList(3, str.size)
             val data = IdolGroup(str[0], str[1], str[2].toInt(), members)
             val dupIdol = idolDB.filter {
@@ -125,7 +124,7 @@ class IdolManageFun {
                     it.value.name == str[0]
                 }
                 if (isCompanyExist.isEmpty()){
-                    println("등록 가능한 소속사가 없습니다.")
+                    println("수정 가능한 소속사가 없습니다.")
                 }else{
                     val members = str.subList(3, str.size)
                     val data = IdolGroup(str[0], str[1], str[2].toInt(), members, events)
@@ -171,7 +170,6 @@ class IdolManageFun {
                         Event(event.value.name, event.value.date, castedGroup)
                     eventDB.replace(event.key, data)
                 }
-                //break 해야하나
             }
         }
         EventDB.updateEventFileDB()
@@ -205,7 +203,6 @@ class IdolManageFun {
                         Company(company.value.name, company.value.address, company.value.contactNumber, groupList)
                     companyDB.replace(company.key, data)
                 }
-                //break 해야하나
             }
         }
         CompanyDB.updateCompanyFileDB()
